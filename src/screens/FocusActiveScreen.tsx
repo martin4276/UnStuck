@@ -5,50 +5,50 @@ import { Colors, Spacing, Typography } from '../../theme';
 import { Flame, Lock, ShieldAlert } from 'lucide-react-native';
 import { useAppStore } from '../../context/store';
 import StrictMode from '../../context/StrictModeModule';
+import { InterstitialAd, AdEventType, TestIds } from 'react-native-google-mobile-ads';
+
+const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : 'ca-app-pub-xxxxxxxxxxxxxxxx/xxxxxxxxxx';
+
+const interstitial = InterstitialAd.createForAdUnitId(adUnitId, {
+  keywords: ['productivity', 'focus', 'business'],
+});
 
 export const FocusActiveScreen = ({ route, navigation }: any) => {
   const { taskName } = route.params;
   const { incrementScore, resetStreak, incrementChains, addToHistory, isPremium } = useAppStore();
   const [seconds, setSeconds] = useState(25 * 60);
+  const [adLoaded, setAdLoaded] = useState(false);
 
   useEffect(() => {
-    // Le mode strict réel n'est activé que pour les membres Premium
-    if (isPremium) {
-        try {
-            StrictMode.enableStrictMode();
-        } catch (e) {
-            console.warn("StrictMode non disponible");
-        }
+    // Précharger la publicité pour les utilisateurs non-premium
+    if (!isPremium) {
+        const unsubscribe = interstitial.addAdEventListener(AdEventType.LOADED, () => {
+            setAdLoaded(true);
+        });
+        interstitial.load();
+        return unsubscribe;
     }
-
-    const timer = setInterval(() => {
-      setSeconds(s => {
-          if (s <= 1) {
-              clearInterval(timer);
-              handleComplete();
-              return 0;
-          }
-          return s - 1;
-      });
-    }, 1000);
-
-    return () => {
-        clearInterval(timer);
-        if (isPremium) {
-            try {
-                StrictMode.disableStrictMode();
-            } catch (e) {}
-        }
-    };
   }, [isPremium]);
 
   const handleComplete = () => {
       incrementScore();
       incrementChains();
       addToHistory();
-      Alert.alert("VICTOIRE", "Session terminée. Score +10.", [
-          { text: "PRENDRE UNE PAUSE", onPress: () => navigation.navigate('Break') }
-      ]);
+
+      const finish = () => {
+          Alert.alert("VICTOIRE", "Session terminée. Score +10.", [
+              { text: "PRENDRE UNE PAUSE", onPress: () => navigation.navigate('Break') }
+          ]);
+      };
+
+      // Si non-premium et pub chargée, on l'affiche avant la victoire
+      if (!isPremium && adLoaded) {
+          interstitial.show();
+          // On continue après la pub (logique simplifiée)
+          finish();
+      } else {
+          finish();
+      }
   };
 
   const handlePanic = () => {
