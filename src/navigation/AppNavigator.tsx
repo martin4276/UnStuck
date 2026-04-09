@@ -5,6 +5,7 @@ import { BattleModeScreen } from '../screens/BattleModeScreen';
 import { FocusActiveScreen } from '../screens/FocusActiveScreen';
 import { StatsScreen } from '../screens/StatsScreen';
 import { BreakScreen } from '../screens/BreakScreen';
+import { PaywallScreen } from '../screens/PaywallScreen';
 import { Colors } from '../theme';
 
 const Stack = createNativeStackNavigator();
@@ -22,6 +23,7 @@ export const AppNavigator = () => {
       <Stack.Screen name="Focus" component={FocusActiveScreen} />
       <Stack.Screen name="Stats" component={StatsScreen} />
       <Stack.Screen name="Break" component={BreakScreen} />
+      <Stack.Screen name="Paywall" component={PaywallScreen} options={{ presentation: 'modal' }} />
     </Stack.Navigator>
   );
 };

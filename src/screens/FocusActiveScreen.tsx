@@ -8,14 +8,17 @@ import StrictMode from '../../context/StrictModeModule';
 
 export const FocusActiveScreen = ({ route, navigation }: any) => {
   const { taskName } = route.params;
-  const { incrementScore, resetStreak, incrementChains, addToHistory } = useAppStore();
+  const { incrementScore, resetStreak, incrementChains, addToHistory, isPremium } = useAppStore();
   const [seconds, setSeconds] = useState(25 * 60);
 
   useEffect(() => {
-    try {
-        StrictMode.enableStrictMode();
-    } catch (e) {
-        console.warn("StrictMode non disponible");
+    // Le mode strict réel n'est activé que pour les membres Premium
+    if (isPremium) {
+        try {
+            StrictMode.enableStrictMode();
+        } catch (e) {
+            console.warn("StrictMode non disponible");
+        }
     }
 
     const timer = setInterval(() => {
@@ -31,11 +34,13 @@ export const FocusActiveScreen = ({ route, navigation }: any) => {
 
     return () => {
         clearInterval(timer);
-        try {
-            StrictMode.disableStrictMode();
-        } catch (e) {}
+        if (isPremium) {
+            try {
+                StrictMode.disableStrictMode();
+            } catch (e) {}
+        }
     };
-  }, []);
+  }, [isPremium]);
 
   const handleComplete = () => {
       incrementScore();
@@ -73,10 +78,15 @@ export const FocusActiveScreen = ({ route, navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <View style={styles.strictBadge}>
-            <Lock size={14} color={Colors.accent} />
-            <Text style={styles.strictText}>STRICT MODE: ACTIVE</Text>
-        </View>
+        <TouchableOpacity 
+            style={[styles.strictBadge, !isPremium && styles.lockedBadge]} 
+            onPress={() => !isPremium && navigation.navigate('Paywall')}
+        >
+            <Lock size={14} color={isPremium ? Colors.accent : Colors.neutralLight} />
+            <Text style={[styles.strictText, !isPremium && styles.lockedText]}>
+                {isPremium ? "STRICT MODE: ACTIVE" : "STRICT MODE: LOCKED"}
+            </Text>
+        </TouchableOpacity>
         <Flame size={28} color={Colors.accent} fill={Colors.accent} />
       </View>
 
@@ -106,7 +116,9 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background, padding: Spacing.l, justifyContent: 'space-between' },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   strictBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FF450015', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 24, gap: 8, borderWidth: 1, borderColor: '#FF450030' },
+  lockedBadge: { backgroundColor: Colors.card, borderColor: Colors.neutralDark },
   strictText: { color: Colors.accent, fontSize: 11, fontWeight: '900', letterSpacing: 1 },
+  lockedText: { color: Colors.neutralLight },
   timerZone: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   timer: { fontSize: 110, fontWeight: '900', color: 'white', letterSpacing: -4, fontVariant: ['tabular-nums'] },
   timerLabel: { color: Colors.neutralLight, fontSize: 10, fontWeight: 'bold', letterSpacing: 3, marginTop: 10 },

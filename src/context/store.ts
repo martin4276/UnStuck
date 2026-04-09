@@ -19,6 +19,7 @@ interface AppState {
   score: number;
   chainsBroken: number;
   history: HistoryDay[];
+  isPremium: boolean;
   addTask: (text: string) => void;
   removeTask: (id: string) => void;
   setTasks: (tasks: Task[]) => void;
@@ -26,6 +27,7 @@ interface AppState {
   resetStreak: () => void;
   incrementChains: () => void;
   addToHistory: () => void;
+  setPremium: (status: boolean) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -36,6 +38,7 @@ export const useAppStore = create<AppState>()(
       score: 0,
       chainsBroken: 0,
       history: [],
+      isPremium: false,
       addTask: (text) => set((state) => ({
         tasks: [...state.tasks, { id: Date.now().toString(), text, points: 0 }]
       })),
@@ -60,6 +63,7 @@ export const useAppStore = create<AppState>()(
           }
           return { history };
       }),
+      setPremium: (status) => set({ isPremium: status }),
     }),
     {
       name: 'unstuck-storage',
