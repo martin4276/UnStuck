@@ -22,7 +22,7 @@ export const DailySetupScreen = ({ navigation }: any) => {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         {/* Stats Row */}
-        <View style={styles.statsRow}>
+        <TouchableOpacity style={styles.statsRow} onPress={() => navigation.navigate('Stats')}>
             <View style={styles.stat}>
                 <Flame color={Colors.accent} size={20} fill={streak > 0 ? Colors.accent : 'transparent'} />
                 <Text style={styles.statText}>{streak}</Text>
@@ -31,7 +31,7 @@ export const DailySetupScreen = ({ navigation }: any) => {
                 <Trophy color="#FFD700" size={20} />
                 <Text style={styles.statText}>{score}</Text>
             </View>
-        </View>
+        </TouchableOpacity>
 
         <View style={styles.header}>
           <Text style={styles.title}>Quoi aujourd'hui ?</Text>

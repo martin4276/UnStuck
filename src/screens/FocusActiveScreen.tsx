@@ -8,15 +8,14 @@ import StrictMode from '../../context/StrictModeModule';
 
 export const FocusActiveScreen = ({ route, navigation }: any) => {
   const { taskName } = route.params;
-  const { incrementScore, resetStreak } = useAppStore();
+  const { incrementScore, resetStreak, incrementChains, addToHistory } = useAppStore();
   const [seconds, setSeconds] = useState(25 * 60);
 
   useEffect(() => {
-    // Activer le mode strict natif
     try {
         StrictMode.enableStrictMode();
     } catch (e) {
-        console.warn("StrictMode non disponible (probablement sur simulateur/Expo Go)");
+        console.warn("StrictMode non disponible");
     }
 
     const timer = setInterval(() => {
@@ -32,7 +31,6 @@ export const FocusActiveScreen = ({ route, navigation }: any) => {
 
     return () => {
         clearInterval(timer);
-        // Désactiver le mode strict en quittant l'écran
         try {
             StrictMode.disableStrictMode();
         } catch (e) {}
@@ -41,8 +39,10 @@ export const FocusActiveScreen = ({ route, navigation }: any) => {
 
   const handleComplete = () => {
       incrementScore();
+      incrementChains();
+      addToHistory();
       Alert.alert("VICTOIRE", "Session terminée. Score +10.", [
-          { text: "ENCORE !", onPress: () => navigation.navigate('Daily') }
+          { text: "PRENDRE UNE PAUSE", onPress: () => navigation.navigate('Break') }
       ]);
   };
 
