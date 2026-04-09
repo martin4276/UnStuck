@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Spacing, Typography } from '../../theme';
-import { Flame, Lock, ShieldAlert, Circle } from 'lucide-react-native';
+import { Flame, Lock, ShieldAlert } from 'lucide-react-native';
 import { useAppStore } from '../../context/store';
+import StrictMode from '../../context/StrictModeModule';
 
 export const FocusActiveScreen = ({ route, navigation }: any) => {
   const { taskName } = route.params;
@@ -11,6 +12,13 @@ export const FocusActiveScreen = ({ route, navigation }: any) => {
   const [seconds, setSeconds] = useState(25 * 60);
 
   useEffect(() => {
+    // Activer le mode strict natif
+    try {
+        StrictMode.enableStrictMode();
+    } catch (e) {
+        console.warn("StrictMode non disponible (probablement sur simulateur/Expo Go)");
+    }
+
     const timer = setInterval(() => {
       setSeconds(s => {
           if (s <= 1) {
@@ -21,7 +29,14 @@ export const FocusActiveScreen = ({ route, navigation }: any) => {
           return s - 1;
       });
     }, 1000);
-    return () => clearInterval(timer);
+
+    return () => {
+        clearInterval(timer);
+        // Désactiver le mode strict en quittant l'écran
+        try {
+            StrictMode.disableStrictMode();
+        } catch (e) {}
+    };
   }, []);
 
   const handleComplete = () => {
