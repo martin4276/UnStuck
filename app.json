@@ -29,13 +29,11 @@
     },
     "extra": {
       "eas": {
-        "projectId": "e57b2ff2-de1e-4539-aa50-4ff2a09b7dc4"
-      },
-      "router": {}
+        "projectId": "ac29e871-731b-440a-b23f-cdfddf90544b"
+      }
     },
     "plugins": [
-      "expo-font",
-      "expo-router"
+      "expo-font"
     ]
   }
 }
